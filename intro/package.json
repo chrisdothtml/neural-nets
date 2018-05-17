@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "dependencies": {
+    "synaptic": "^1.1.4"
+  }
+}
