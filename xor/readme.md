@@ -1,4 +1,4 @@
-# intro
+# xor
 
 > Simple network to solve XOR trees
 
