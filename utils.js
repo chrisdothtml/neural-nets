@@ -16,6 +16,7 @@ exports.readJSON = async (filepath) => {
   return JSON.parse(content)
 }
 
-exports.writeJSON = (filepath, content) => {
-  return fs.writeFile(filepath, JSON.stringify(content), 'utf-8')
+exports.writeJSON = (filepath, content, pretty = false) => {
+  const json = pretty ? JSON.stringify(content, null, 2) : JSON.stringify(content)
+  return fs.writeFile(filepath, json, 'utf-8')
 }
