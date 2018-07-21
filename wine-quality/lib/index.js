@@ -2,6 +2,7 @@ require('@tensorflow/tfjs-node')
 
 const csvtojson = require('csvtojson')
 const fs = require('pfs')
+const path = require('path')
 const tf = require('@tensorflow/tfjs')
 const { iife } = require('../../utils.js')
 
@@ -54,19 +55,37 @@ function createModel (data) {
 }
 
 iife(async () => {
-  const data = await getData([
-    './data/winequality-red.csv',
-    './data/winequality-white.csv'
-  ])
-  const model = createModel(data)
-  const results = await model.fit(
-    tf.tensor2d(data.inputs),
-    tf.tensor1d(data.outputs),
-    {
-      epochs: 10,
-      validationSplit: 0.2
-    }
-  )
+  const modelPath = 'file://lib/model'
+  let model
 
-  console.log(results)
+  try {
+    model = await tf.loadModel(modelPath)
+  } catch (e) {
+    const data = await getData([
+      './data/winequality-red.csv',
+      './data/winequality-white.csv'
+    ])
+
+    model = createModel(data)
+
+    await model.fit(
+      tf.tensor2d(data.inputs),
+      tf.tensor1d(data.outputs),
+      {
+        epochs: 10,
+        validationSplit: 0.2
+      }
+    )
+
+    await model.save(modelPath)
+  }
+
+  tf.tidy(() => {
+    // from test data; has a quality of 5
+    // const testInput = tf.tensor2d([[5.6, 0.615, 0, 1.6, 0.089, 16, 59, 0.9943, 3.58, 0.52, 9.9]])
+    // from test data; has a quality of 8
+    const testInput = tf.tensor2d([[10.3, 0.32, 0.45, 6.4, 0.073, 5, 13, 0.9976, 3.23, 0.82, 12.6]])
+
+    model.predict(testInput).print()
+  })
 })
